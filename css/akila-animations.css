@@ -146,14 +146,14 @@
 /* Hero meta row — like a bank statement summary */
 .ak-meta {
   display: grid;
-  grid-template-columns: repeat(4, minmax(0,1fr));
+  grid-template-columns: repeat(5, minmax(0,1fr));
   gap: 0;
   border-top: 1px solid var(--akila-line);
   border-bottom: 1px solid var(--akila-line);
   padding: 28px 0;
 }
 .ak-meta__item { padding: 0 4px; }
-.ak-meta__item + .ak-meta__item { border-left: 1px solid var(--akila-line); padding-left: 28px; }
+.ak-meta__item + .ak-meta__item { border-left: 1px solid var(--akila-line); padding-left: 24px; }
 .ak-meta__label {
   font-family: 'Plusjakartatext', system-ui, sans-serif;
   font-size: 11px;
@@ -165,14 +165,14 @@
 }
 .ak-meta__value {
   font-family: 'Thicccboi', 'Plusjakartadisplay', system-ui, sans-serif;
-  font-size: clamp(15px, 1.2vw, 17px);
+  font-size: clamp(13px, 1.05vw, 16px);
   font-weight: 500;
   color: var(--akila-ink);
   margin: 0;
   line-height: 1.4;
 }
 
-@media (max-width: 768px) {
+@media (max-width: 900px) {
   .ak-meta { grid-template-columns: repeat(2, 1fr); gap: 24px 0; }
   .ak-meta__item + .ak-meta__item { border-left: none; padding-left: 0; }
   .ak-meta__item:nth-child(odd) { padding-right: 12px; }
@@ -180,28 +180,25 @@
 }
 
 /* ---------- The "Tap-to-pay" sticky badge that follows scroll ---------- */
+/* ---------- Tap-to-pay button (contactless icon + section-by-section nav) ---------- */
 .ak-tap {
   position: fixed;
   right: 24px;
   bottom: 24px;
   z-index: 50;
-  width: 76px; height: 76px;
+  width: 76px;
+  height: 76px;
   border-radius: 50%;
-  background: var(--akila-ink);
-  color: #fff;
+  background: #fff;
+  color: var(--akila-ink);
   display: flex;
   align-items: center;
   justify-content: center;
-  font-family: 'Plusjakartatext', system-ui, sans-serif;
-  font-size: 10px;
-  font-weight: 700;
-  letter-spacing: 0.18em;
-  text-transform: uppercase;
-  text-align: center;
   cursor: pointer;
   text-decoration: none;
+  border: 1.5px solid var(--akila-ink);
   box-shadow: 0 12px 40px rgba(0,0,0,0.18);
-  transition: transform 0.5s var(--akila-ease), opacity 0.5s var(--akila-ease);
+  transition: transform 0.5s var(--akila-ease), opacity 0.5s var(--akila-ease), background 0.3s var(--akila-ease);
   opacity: 0;
   transform: scale(0.6);
   pointer-events: none;
@@ -211,37 +208,78 @@
   transform: scale(1);
   pointer-events: auto;
 }
-.ak-tap::before {
-  content: "";
-  position: absolute;
-  inset: -8px;
-  border-radius: 50%;
-  border: 2px solid var(--akila-mint);
-  opacity: 0;
-  animation: ak-tap-ripple 2.2s ease-out infinite;
-}
-.ak-tap::after {
-  content: "";
-  position: absolute;
-  inset: -2px;
-  border-radius: 50%;
-  border: 2px solid var(--akila-mint);
-  opacity: 0;
-  animation: ak-tap-ripple 2.2s ease-out 0.6s infinite;
-}
-@keyframes ak-tap-ripple {
-  0%   { transform: scale(0.9); opacity: 0.8; }
-  100% { transform: scale(1.4); opacity: 0; }
+.ak-tap:hover {
+  background: var(--akila-ink);
+  color: #fff;
 }
 .ak-tap__icon {
-  position: absolute;
-  top: 16px; right: 14px;
-  width: 18px; height: 18px;
+  width: 44px;
+  height: 36px;
+  pointer-events: none;
 }
-.ak-tap__label {
-  margin-top: 14px;
-  font-size: 9px;
-  line-height: 1.2;
+.ak-tap__icon path,
+.ak-tap__icon line {
+  stroke: currentColor;
+  fill: none;
+  stroke-width: 2.2;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: stroke 0.3s var(--akila-ease);
+}
+.ak-tap__icon .ak-tap__phone-fill {
+  fill: currentColor;
+  stroke: none;
+}
+
+/* Subtle "ready" pulse on the wave lines */
+.ak-tap__icon .ak-tap__wave1 { animation: ak-tap-wave-pulse 2.4s ease-out infinite; }
+.ak-tap__icon .ak-tap__wave2 { animation: ak-tap-wave-pulse 2.4s ease-out 0.3s infinite; }
+.ak-tap__icon .ak-tap__wave3 { animation: ak-tap-wave-pulse 2.4s ease-out 0.6s infinite; }
+@keyframes ak-tap-wave-pulse {
+  0%, 100% { opacity: 0.35; }
+  50%      { opacity: 1; }
+}
+
+/* "Back to top" mode — flips the icon */
+.ak-tap.is-final .ak-tap__icon {
+  transform: rotate(-90deg);
+}
+
+/* Shoot animation: triggered by .is-shooting class for ~700ms */
+.ak-tap.is-shooting {
+  /* Briefly suppress the button's own transition while shooting */
+  transform: scale(0.92);
+}
+
+/* The flying lines that shoot diagonally toward top-left.
+   Three lines spawned from inside the button on click. */
+.ak-tap-shot {
+  position: fixed;
+  pointer-events: none;
+  z-index: 49;
+  width: 60px;
+  height: 4px;
+  background: linear-gradient(90deg, transparent, var(--akila-ink) 40%, var(--akila-ink) 60%, transparent);
+  border-radius: 2px;
+  /* Initial position is set via inline style on creation */
+  transform-origin: 0 50%;
+  opacity: 0;
+}
+.ak-tap-shot.is-firing {
+  animation: ak-tap-shoot 900ms cubic-bezier(0.22, 1, 0.36, 1) forwards;
+}
+@keyframes ak-tap-shoot {
+  0%   { opacity: 0;   transform: rotate(var(--ak-shot-angle)) translateX(0)    scaleX(0.4); }
+  15%  { opacity: 1;   transform: rotate(var(--ak-shot-angle)) translateX(0)    scaleX(0.6); }
+  60%  { opacity: 1;   transform: rotate(var(--ak-shot-angle)) translateX(var(--ak-shot-distance)) scaleX(1.4); }
+  100% { opacity: 0;   transform: rotate(var(--ak-shot-angle)) translateX(calc(var(--ak-shot-distance) * 1.2)) scaleX(0.6); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ak-tap__icon .ak-tap__wave1,
+  .ak-tap__icon .ak-tap__wave2,
+  .ak-tap__icon .ak-tap__wave3 { animation: none; opacity: 0.7; }
+  .ak-tap-shot { display: none; }
 }
 
 /* ---------- Section heading ---------- */
@@ -493,7 +531,9 @@
   .ak-section + .ak-section::before { height: 60px; transition: none; }
   .ak-section + .ak-section::after { display: none; }
   .ak-hero__eyebrow::before { animation: none; }
-  .ak-tap::before, .ak-tap::after { animation: none; }
+  .ak-tap__icon .ak-tap__wave1,
+  .ak-tap__icon .ak-tap__wave2,
+  .ak-tap__icon .ak-tap__wave3 { animation: none; opacity: 0.7; }
 }
 
 /* ===========================================================
@@ -528,6 +568,43 @@
   position: relative;
   height: 360px;
   width: 100%;
+}
+.ak-chart__canvas-wrap canvas {
+  position: relative;
+  z-index: 2;
+}
+.ak-chart__fallback {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+  padding: 24px;
+  background: #fafafa;
+  border-radius: 12px;
+  z-index: 1;
+}
+.ak-chart__fallback p {
+  font-family: 'Plusjakartatext', system-ui, sans-serif;
+  font-size: 14px;
+  line-height: 1.5;
+  color: #3a3a3a;
+  margin: 0;
+}
+.ak-chart__fallback p strong {
+  color: var(--akila-ink);
+  font-weight: 700;
+}
+.ak-chart__fallback-note {
+  font-size: 11px !important;
+  color: #8a95ad !important;
+  letter-spacing: 0.04em;
+  margin-top: 6px !important;
+}
+/* Once a chart instance attaches, the JS adds .has-chart to the wrap */
+.ak-chart__canvas-wrap.has-chart .ak-chart__fallback {
+  display: none;
 }
 .ak-chart__source {
   font-family: 'Plusjakartatext', system-ui, sans-serif;
@@ -617,7 +694,14 @@
   left: 12px;
   top: 0; bottom: 0;
   width: 2px;
-  background: linear-gradient(to bottom, var(--akila-line) 0%, var(--akila-grad) 50%, var(--akila-line) 100%);
+  background: linear-gradient(
+    to bottom,
+    rgba(0,0,0,0.08) 0%,
+    #b16cea 30%,
+    #ff5e69 50%,
+    #ff8a56 70%,
+    rgba(0,0,0,0.08) 100%
+  );
 }
 .ak-tl-item {
   position: relative;
@@ -882,7 +966,7 @@
   background: #fff;
   border: 1px solid var(--akila-line);
   border-radius: 18px;
-  padding: 32px 28px;
+  padding: 24px 20px;
   margin: 48px 0 0;
   font-family: 'Plusjakartatext', system-ui, sans-serif;
 }
@@ -891,19 +975,19 @@
   -webkit-overflow-scrolling: touch;
 }
 .ak-cjm-inner {
-  min-width: 1180px;
+  min-width: 1080px;
 }
 
 /* Top header: persona + factors + legend */
 .ak-cjm__header {
   display: flex;
   align-items: flex-start;
-  gap: 32px;
-  padding-bottom: 28px;
+  gap: 24px;
+  padding-bottom: 24px;
   border-bottom: 1px solid var(--akila-line);
-  margin-bottom: 28px;
+  margin-bottom: 24px;
 }
-.ak-cjm__persona { display: flex; gap: 16px; flex: 1; min-width: 380px; }
+.ak-cjm__persona { display: flex; gap: 14px; flex: 1; min-width: 340px; }
 .ak-cjm__avatar {
   width: 64px; height: 64px;
   border-radius: 50%;
@@ -998,8 +1082,8 @@
 .ak-cjm__stages,
 .ak-cjm__row {
   display: grid;
-  grid-template-columns: repeat(3, 2fr) repeat(2, 2fr) 1fr 2fr;
-  gap: 8px;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
 }
 .ak-cjm__stages-superlabel {
   margin-bottom: 8px;
@@ -1030,9 +1114,9 @@
 /* Row layout with left label */
 .ak-cjm__lane {
   display: grid;
-  grid-template-columns: 100px 1fr;
+  grid-template-columns: 84px 1fr;
   gap: 0;
-  padding-top: 28px;
+  padding-top: 20px;
 }
 .ak-cjm__lane-label {
   font-size: 11px;
@@ -1044,8 +1128,8 @@
 }
 .ak-cjm__cells {
   display: grid;
-  grid-template-columns: repeat(3, 2fr) repeat(2, 2fr) 1fr 2fr;
-  gap: 8px;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
 }
 .ak-cjm__touch {
   font-size: 11px;
@@ -1077,9 +1161,9 @@
 /* Thoughts row */
 .ak-cjm__thoughts-bg {
   display: grid;
-  grid-template-columns: repeat(3, 2fr) repeat(2, 2fr) 1fr 2fr;
-  gap: 8px;
-  padding: 14px;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  padding: 12px;
   background: #fafafa;
   border-radius: 12px;
   margin-top: 4px;
@@ -1094,9 +1178,9 @@
 /* Opportunity row */
 .ak-cjm__opp-bg {
   display: grid;
-  grid-template-columns: repeat(3, 2fr) repeat(2, 2fr) 1fr 2fr;
-  gap: 8px;
-  padding: 14px;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 6px;
+  padding: 12px;
   background: rgba(177, 108, 234, 0.06);
   border-radius: 12px;
   border-left: 3px solid #b16cea;
@@ -1126,6 +1210,305 @@
   color: #8a95ad;
   text-align: center;
 }
-@media (max-width: 1240px) {
+@media (max-width: 1140px) {
   .ak-cjm-hint { display: block; }
+}
+
+/* ===========================================================
+   CJM line interactivity (Section 06)
+   Hover/tap a dot → its column highlights across all lanes.
+   =========================================================== */
+.ak-cjm__chart-svg {
+  /* Keep the SVG a sibling of the tooltip absolutely-positioned in the wrap */
+  position: relative;
+  z-index: 1;
+}
+
+/* Make pointer cursor only on the dot groups */
+.ak-cjm__pt {
+  cursor: pointer;
+  transition: transform 0.2s var(--akila-ease);
+  transform-box: fill-box;
+  transform-origin: center;
+  outline: none;
+}
+.ak-cjm__pt:focus-visible .ak-cjm__pt-dot {
+  filter: drop-shadow(0 0 0 2px #fff) drop-shadow(0 0 0 4px #b16cea);
+}
+.ak-cjm__pt-hit {
+  fill: transparent;
+  /* Invisible but interactive */
+}
+.ak-cjm__pt-dot {
+  transition: r 0.2s var(--akila-ease), filter 0.2s var(--akila-ease);
+}
+.ak-cjm__pt:hover .ak-cjm__pt-dot,
+.ak-cjm__pt.is-active .ak-cjm__pt-dot {
+  filter: drop-shadow(0 0 8px rgba(177,108,234,0.55));
+}
+.ak-cjm__pt:hover .ak-cjm__pt-dot {
+  r: 9;
+}
+.ak-cjm__pt--mot:hover .ak-cjm__pt-dot {
+  r: 12;
+}
+/* MOT dots get a stronger glow in their own color */
+.ak-cjm__pt--mot[data-stage="5"]:hover .ak-cjm__pt-dot,
+.ak-cjm__pt--mot[data-stage="5"].is-active .ak-cjm__pt-dot {
+  filter: drop-shadow(0 0 10px rgba(201,53,68,0.7));
+}
+.ak-cjm__pt--mot[data-stage="6"]:hover .ak-cjm__pt-dot,
+.ak-cjm__pt--mot[data-stage="6"].is-active .ak-cjm__pt-dot {
+  filter: drop-shadow(0 0 10px rgba(0,212,168,0.7));
+}
+
+/* Tooltip — positioned absolutely inside the chart-wrap */
+.ak-cjm__chart-wrap {
+  position: relative;
+}
+.ak-cjm__tooltip {
+  position: absolute;
+  background: var(--akila-ink);
+  color: #fff;
+  padding: 8px 12px;
+  border-radius: 8px;
+  font-family: 'Plusjakartatext', system-ui, sans-serif;
+  font-size: 12px;
+  line-height: 1.3;
+  white-space: nowrap;
+  pointer-events: none;
+  opacity: 0;
+  transform: translate(-50%, calc(-100% - 14px));
+  transition: opacity 0.18s var(--akila-ease);
+  z-index: 5;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.18);
+}
+.ak-cjm__tooltip::after {
+  /* Caret pointing down toward the dot */
+  content: "";
+  position: absolute;
+  bottom: -5px;
+  left: 50%;
+  transform: translateX(-50%) rotate(45deg);
+  width: 10px; height: 10px;
+  background: var(--akila-ink);
+}
+.ak-cjm__tooltip.is-visible {
+  opacity: 1;
+}
+.ak-cjm__tooltip-score {
+  font-family: 'Thicccboi', system-ui, sans-serif;
+  font-weight: 600;
+  font-size: 14px;
+  display: block;
+  margin-top: 2px;
+  color: #fff;
+}
+.ak-cjm__tooltip-label {
+  display: block;
+  font-size: 10px;
+  letter-spacing: 0.12em;
+  text-transform: uppercase;
+  color: rgba(255,255,255,0.6);
+}
+
+/* Column highlighting — cells become "lit" when their stage is active */
+.ak-cjm__pill,
+.ak-cjm__touch,
+.ak-cjm__thought,
+.ak-cjm__opp {
+  transition: background 0.25s var(--akila-ease),
+              color 0.25s var(--akila-ease),
+              transform 0.25s var(--akila-ease),
+              box-shadow 0.25s var(--akila-ease);
+}
+/* Dimmed state when ANY stage is active */
+.ak-cjm.is-stage-active .ak-cjm__pill:not(.is-active-stage),
+.ak-cjm.is-stage-active .ak-cjm__touch:not(.is-active-stage),
+.ak-cjm.is-stage-active .ak-cjm__thought:not(.is-active-stage),
+.ak-cjm.is-stage-active .ak-cjm__opp:not(.is-active-stage) {
+  opacity: 0.35;
+}
+/* Active cell pop */
+.ak-cjm__pill.is-active-stage {
+  transform: scale(1.06);
+  box-shadow: 0 6px 20px rgba(0,0,0,0.18);
+}
+.ak-cjm__touch.is-active-stage {
+  color: var(--akila-ink);
+  font-weight: 600;
+}
+.ak-cjm__thought.is-active-stage {
+  color: var(--akila-ink);
+  font-style: normal;
+  font-weight: 500;
+}
+.ak-cjm__opp.is-active-stage {
+  color: var(--akila-ink);
+  font-weight: 600;
+}
+/* MOT-flagged opportunities keep their alert color even when active */
+.ak-cjm__opp--alert.is-active-stage {
+  color: #c93544;
+}
+
+/* ===========================================================
+   UI Design (Section 09) — image groups
+   =========================================================== */
+.ak-ui {
+  margin-top: 40px;
+}
+.ak-ui__group {
+  margin-bottom: 64px;
+}
+.ak-ui__group:last-child { margin-bottom: 0; }
+
+.ak-ui__label {
+  font-family: 'Plusjakartatext', system-ui, sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.18em;
+  text-transform: uppercase;
+  color: #8a95ad;
+  margin: 0 0 16px;
+}
+
+/* Hero feature shot — full width, original background preserved */
+.ak-ui__hero {
+  border-radius: 18px;
+  overflow: hidden;
+  background: #0f3a3d; /* fallback in case image bg has padding */
+}
+.ak-ui__hero img {
+  display: block;
+  width: 100%;
+  height: auto;
+}
+
+/* Light-themed feature card — for shots that come on white */
+.ak-ui__card {
+  background: #f4f6f7;
+  border-radius: 18px;
+  padding: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.ak-ui__card img {
+  display: block;
+  max-width: 100%;
+  height: auto;
+}
+
+/* Two-column feature grid (e.g. virtual cards + savings pot side by side) */
+.ak-ui__two {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 20px;
+}
+@media (max-width: 768px) {
+  .ak-ui__two { grid-template-columns: 1fr; }
+}
+
+/* Single phone wrap — for the standalone single-screen mocks */
+.ak-ui__phone {
+  background: #f4f6f7;
+  border-radius: 18px;
+  padding: 24px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 480px;
+}
+.ak-ui__phone img {
+  max-width: 280px;
+  width: 100%;
+  height: auto;
+  border-radius: 32px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.18);
+}
+
+/* Horizontal scroll row for onboarding screens */
+.ak-ui__row {
+  background: #0a1f2a;
+  border-radius: 18px;
+  padding: 40px 0;
+  overflow-x: auto;
+  -webkit-overflow-scrolling: touch;
+}
+.ak-ui__row-inner {
+  display: flex;
+  gap: 24px;
+  padding: 0 32px;
+  width: max-content;
+  align-items: center;
+}
+.ak-ui__row-inner img {
+  display: block;
+  width: 220px;
+  height: auto;
+  border-radius: 28px;
+  box-shadow: 0 24px 60px rgba(0, 0, 0, 0.4);
+  flex-shrink: 0;
+}
+
+/* Bulleted list inside ak-two body */
+.ak-bullets {
+  margin: 0 0 16px 0;
+  padding: 0 0 0 4px;
+  list-style: none;
+}
+.ak-bullets li {
+  position: relative;
+  padding-left: 22px;
+  margin-bottom: 10px;
+  font-family: 'Plusjakartatext', system-ui, sans-serif;
+  font-size: 15px;
+  line-height: 1.6;
+  color: #3a3a3a;
+}
+.ak-bullets li::before {
+  content: "";
+  position: absolute;
+  left: 0;
+  top: 9px;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--akila-grad);
+}
+.ak-bullets li:last-child { margin-bottom: 0; }
+
+/* Timeline — highlight modifier for the Akila design year inside the timeline */
+.ak-tl-item--akila { position: relative; }
+.ak-tl-item--akila::before {
+  background: var(--akila-grad);
+  border-color: transparent;
+  box-shadow: 0 0 0 5px rgba(255, 94, 105, 0.18);
+}
+.ak-tl-akila-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 12px;
+  background: var(--akila-ink);
+  color: #fff;
+  border-radius: 999px;
+  font-family: 'Plusjakartatext', system-ui, sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  margin-bottom: 8px;
+}
+.ak-tl-akila-pill::before {
+  content: "";
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: var(--akila-mint);
+}
+.ak-tl-item--future .ak-tl-date { color: #ff8a56; }
+.ak-tl-item--future::before {
+  background: #fff;
+  border: 2px dashed #ff8a56;
 }
