@@ -1,0 +1,16 @@
+# https://momerdesign.com/robots.txt
+# Allow all crawlers to index everything
+
+User-agent: *
+Allow: /
+
+# Block utility pages that don't need to be indexed
+Disallow: /401.html
+Disallow: /404.html
+Disallow: /detail_blog.html
+Disallow: /detail_projects.html
+Disallow: /detail_project-role.html
+Disallow: /detail_project-tags.html
+Disallow: /static-template-slug-1767960010751.html
+
+Sitemap: https://momerdesign.com/sitemap.xml
