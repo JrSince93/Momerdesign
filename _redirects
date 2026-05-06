@@ -1,16 +1,22 @@
 # Pretty URLs: serve /akila-fintech as /akila-fintech.html
 # Status 200 = rewrite (URL stays clean in browser bar)
+# Status 301 = permanent redirect (URL changes in browser bar)
 
 /akila-fintech                                                      /akila-fintech.html                                                      200
 /giveplug                                                           /giveplug.html                                                           200
 /nation-remit                                                       /nation-remit.html                                                       200
-/screw-face-product                                                 /screw-face-product.html                                                 200
 /vivid-opticians                                                    /vivid-opticians.html                                                    200
-/unordinry-creative-branding-user-centric-design-solutions          /unordinry-creative-branding-user-centric-design-solutions.html          200
+/streetwear-brands                                                  /streetwear-brands.html                                                  200
 /projects                                                           /projects.html                                                           200
 /contact                                                            /contact.html                                                            200
 /blogs/22-best-ui-design-tools-every-designer-should-know           /blogs/22-best-ui-design-tools-every-designer-should-know.html           200
 /blogs/design-tips-for-designers-that-cover-everything-you-need     /blogs/design-tips-for-designers-that-cover-everything-you-need.html     200
+
+# Old un≠ORDINRY and Screw Face URLs redirect to combined Streetwear case study (preserves SEO + external links)
+/screw-face-product                                                 /streetwear-brands                                                       301
+/screw-face-product.html                                            /streetwear-brands.html                                                  301
+/unordinry-creative-branding-user-centric-design-solutions          /streetwear-brands                                                       301
+/unordinry-creative-branding-user-centric-design-solutions.html     /streetwear-brands.html                                                  301
 
 # 404 fallback
 /*                                                                  /404.html                                                                404
