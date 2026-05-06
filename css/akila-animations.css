@@ -1373,10 +1373,8 @@
   margin: 0 0 16px;
 }
 
-/* Hero feature shot — capped width so 3-up mockup compositions don't dominate */
+/* Hero feature shot — full width, original background preserved */
 .ak-ui__hero {
-  max-width: 880px;
-  margin: 0 auto;
   border-radius: 18px;
   overflow: hidden;
   background: #0f3a3d; /* fallback in case image bg has padding */
